@@ -25,3 +25,8 @@ reports/
 *.bak
 
 .venv-check/
+
+# Test coverage reports
+.coverage
+coverage.xml
+htmlcov/
