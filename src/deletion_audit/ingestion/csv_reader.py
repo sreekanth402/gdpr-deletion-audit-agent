@@ -4,6 +4,9 @@ from pathlib import Path
 from typing import Any
 
 
+MAX_CSV_FIELD_SIZE = 1_000_000
+
+
 def read_csv_file(
     file_path: Path,
     required_columns: set[str] | None = None,
@@ -23,6 +26,8 @@ def read_csv_file(
         return result
 
     try:
+        # Bound individual field sizes to avoid pathological/malicious inputs.
+        csv.field_size_limit(MAX_CSV_FIELD_SIZE)
         with file_path.open(
             "r",
             encoding="utf-8-sig",

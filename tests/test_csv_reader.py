@@ -132,3 +132,18 @@ def test_reports_actual_line_number_after_blank_lines(tmp_path):
         and "expected 2 values, found 3" in error
         for error in result["errors"]
     )
+
+
+def test_rejects_csv_fields_over_configured_size_limit(tmp_path):
+    from src.deletion_audit.ingestion.csv_reader import MAX_CSV_FIELD_SIZE
+
+    file_path = tmp_path / "oversized.csv"
+    file_path.write_text(
+        "value\n" + ("x" * (MAX_CSV_FIELD_SIZE + 1)) + "\n",
+        encoding="utf-8",
+    )
+
+    result = read_csv_file(file_path)
+
+    assert result["valid"] is False
+    assert any("Could not read CSV" in error for error in result["errors"])

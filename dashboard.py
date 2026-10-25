@@ -2,6 +2,13 @@ import json
 from pathlib import Path
 
 import streamlit as st
+from src.deletion_audit.audit.report_validator import validate_final_summary
+
+st.set_page_config(
+    page_title="GDPR Deletion Audit",
+    page_icon="🔎",
+    layout="wide",
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -11,99 +18,6 @@ REPORT_PATH = (
     / "final_gdpr_deletion_audit_summary.json"
 )
 
-
-def validate_final_summary(report):
-    """Return a list of validation issues for the final summary JSON."""
-    issues = []
-
-    if not isinstance(report, dict):
-        return [{
-            "code": "invalid_report",
-            "message": "The report JSON must contain a JSON object.",
-        }]
-
-    summary = report.get("summary", {})
-    if not isinstance(summary, dict):
-        issues.append({
-            "code": "invalid_summary",
-            "message": "The report's summary field must be a JSON object.",
-            "value": summary,
-        })
-
-    resources = report.get("resources", [])
-    if not isinstance(resources, list):
-        issues.append({
-            "code": "invalid_resources",
-            "message": "The report's resources field must be a list.",
-            "value": resources,
-        })
-    else:
-        for index, item in enumerate(resources):
-            if not isinstance(item, dict):
-                issues.append({
-                    "code": "invalid_resource_entry",
-                    "index": index,
-                    "message": "Each resource entry must be a JSON object.",
-                    "value": item,
-                })
-                continue
-
-            resource_id = item.get("resource_id")
-            if resource_id is None:
-                issues.append({
-                    "code": "missing_resource_id",
-                    "index": index,
-                    "message": "Resource entry is missing the resource_id field.",
-                    "value": item,
-                })
-
-            audit = item.get("deterministic_audit", {})
-            if not isinstance(audit, dict):
-                issues.append({
-                    "code": "invalid_deterministic_audit",
-                    "index": index,
-                    "message": "Resource deterministic_audit field must be an object.",
-                    "value": audit,
-                })
-
-            ai = item.get("ai_investigation", {})
-            if not isinstance(ai, dict):
-                issues.append({
-                    "code": "invalid_ai_investigation",
-                    "index": index,
-                    "message": "Resource ai_investigation field must be an object.",
-                    "value": ai,
-                })
-
-    integrity_findings = report.get("integrity_findings", [])
-    if integrity_findings is not None and not isinstance(integrity_findings, list):
-        issues.append({
-            "code": "invalid_integrity_findings",
-            "message": "The report's integrity_findings field must be a list.",
-            "value": integrity_findings,
-        })
-
-    return issues
-
-
-if not REPORT_PATH.exists():
-    st.error(f"Report file not found: {REPORT_PATH}")
-    st.stop()
-
-with REPORT_PATH.open("r", encoding="utf-8") as file:
-    report = json.load(file)
-
-if not isinstance(report, dict):
-    st.error("The report JSON must contain a JSON object.")
-    st.stop()
-
-resources = report.get("resources", [])
-
-st.set_page_config(
-    page_title="GDPR Deletion Audit",
-    page_icon="🔍",
-    layout="wide",
-)
 
 st.title("GDPR Deletion Audit Dashboard")
 st.caption("Read-only view of audit evidence and investigation results.")
@@ -203,6 +117,26 @@ for item in resources:
 
 if not filtered_resources:
     st.info("No resources match the selected filters.")
+
+identity = report.get("identity_resolution", {})
+if isinstance(identity, dict):
+    st.divider()
+    st.subheader("Deletion request intake")
+    total_requests = identity.get("total_requests", 0)
+    status_counts = identity.get("request_status_summary", {})
+    intent_counts = identity.get("request_intent_summary", {})
+    st.write(f"Requests reviewed: {total_requests}")
+    request_col1, request_col2 = st.columns(2)
+    request_col1.markdown("**Source reported statuses**")
+    request_col1.json(status_counts)
+    request_col2.markdown("**Text intent review**")
+    request_col2.json(intent_counts)
+    request_findings = identity.get("request_data_quality_findings", [])
+    if request_findings:
+        st.warning(
+            f"{len(request_findings)} request intake issue(s) need review."
+        )
+        st.dataframe(request_findings, use_container_width=True)
 
 for item in filtered_resources:
     resource_id = item.get("resource_id", "Unknown")

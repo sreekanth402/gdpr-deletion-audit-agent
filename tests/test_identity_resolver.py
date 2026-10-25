@@ -118,3 +118,9 @@ def test_classifies_obvious_non_deletion_and_multilingual_requests():
         "Solicito a exclusão permanente da conta."
     )[0] == "DELETION_REQUEST"
     assert classify_request_intent("Unclear request")[0] == "UNKNOWN"
+    assert classify_request_intent(
+        "Solicito a exclus\u00e3o permanente da conta."
+    )[0] == "DELETION_REQUEST"
+    assert classify_request_intent(
+        "\u3053\u306e\u30a2\u30ab\u30a6\u30f3\u30c8\u3092\u524a\u9664\u3057\u3066\u304f\u3060\u3055\u3044"
+    )[0] == "DELETION_REQUEST"

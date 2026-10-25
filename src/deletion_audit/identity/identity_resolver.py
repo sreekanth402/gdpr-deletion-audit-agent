@@ -51,9 +51,10 @@ def classify_request_intent(value: Any) -> tuple[str, str]:
     deletion_patterns = (
         r"\bdelet(?:e|ion|ed|ing)\b", r"\beras(?:e|ed|ure)\b",
         r"\bremov(?:e|al)\b", r"\bclose (?:my |the )?account\b",
-        r"\bsuppression\b", r"\bexclus[ãa]o\b", r"\beliminaci[oó]n\b",
-        r"\bsuppression définitive\b", r"\blösch(?:en|ung)\b",
-        r"\b削除\b", r"\b삭제\b",
+        r"\bsuppression\b", r"\bexclus(?:\u00e3|a)o\b",
+        r"\beliminaci(?:\u00f3|o)n\b", r"\bsuppression d\u00e9finitive\b",
+        r"\bl\u00f6sch(?:en|ung)\b", r"\u524a\u9664",
+        r"\uc0ad\uc81c",
     )
     if any(re.search(pattern, text) for pattern in deletion_patterns):
         return "DELETION_REQUEST", "Text contains a recognized deletion phrase; human review may still be needed."
