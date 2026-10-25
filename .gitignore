@@ -23,3 +23,5 @@ reports/
 # Temporary files
 *.tmp
 *.bak
+
+.venv-check/
