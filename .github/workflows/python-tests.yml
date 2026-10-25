@@ -27,6 +27,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+          python -m pip install pytest-cov
+
+      - name: Verify pytest-cov
+        run: |
+          python -m pip show pytest-cov
+          python -m pytest --help | grep -E -- '--cov=|--cov-report='
 
       - name: Check dependencies
         run: python -m pip check
