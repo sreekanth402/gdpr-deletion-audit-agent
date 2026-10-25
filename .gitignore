@@ -1,0 +1,25 @@
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# IDE settings
+.vscode/
+.idea/
+
+# Generated reports (ignore only if these are reproducible outputs)
+reports/
+
+# Temporary files
+*.tmp
+*.bak

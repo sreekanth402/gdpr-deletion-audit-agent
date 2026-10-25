@@ -1,0 +1,20 @@
+
+{
+  "system": "CRM",
+  "records": [
+    {
+      "event_id": "evt101",
+      "user_id": "u101",
+      "event_type": "DELETE",
+      "resource_id": "rec103",
+      "timestamp": "2026-10-20T12:00:00Z"
+    },
+    {
+      "event_id": "evt102",
+      "user_id": "u101",
+      "event_type": "RESTORE",
+      "resource_id": "rec103",
+      "timestamp": "2026-10-21T12:00:00Z"
+    }
+  ]
+}

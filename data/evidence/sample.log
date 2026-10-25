@@ -1,0 +1,2 @@
+2026-10-20T10:00:00Z DELETE user_id=u101 system=crm
+2026-10-21T10:00:00Z RESTORE user_id=u101 system=crm

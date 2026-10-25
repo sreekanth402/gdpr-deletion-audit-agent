@@ -1,0 +1,4 @@
+data_type,action
+Customer Profile,DELETE
+Financial Record,RETAIN
+Logs,ANONYMIZE

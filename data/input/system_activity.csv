@@ -1,0 +1,7 @@
+﻿event_id,timestamp,user_id,system_id,event_type,resource_id
+evt001,2026-10-20T10:00:00Z,u101,crm,DELETE,rec101
+evt002,2026-10-21T10:00:00Z,u101,crm,RESTORE,rec101
+evt003,2026-10-20T11:00:00Z,u102,crm,DELETE,rec102
+evt004,2026-10-20T11:30:00Z,u102,crm,VERIFY_ABSENT,rec102
+evt005,2026-10-19T09:00:00Z,u101,warehouse,EXPORT,exp101
+evt006,2026-10-22T09:00:00Z,u101,warehouse,SYNC,rec101
