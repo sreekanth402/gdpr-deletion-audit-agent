@@ -193,3 +193,9 @@ def test_invalid_timestamp_does_not_crash_timeline_reconstruction():
     assert isinstance(result, dict)
     assert "summary" in result
     assert "findings" in result
+    invalid_timestamp = next(
+        finding
+        for finding in result["findings"]
+        if finding["finding_type"] == "INVALID_TIMESTAMP"
+    )
+    assert invalid_timestamp["resource_id"] == "rec501"

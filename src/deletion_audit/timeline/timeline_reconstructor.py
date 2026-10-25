@@ -84,6 +84,8 @@ def reconstruct_timelines(
                 "MEDIUM",
                 "Activity has a missing, invalid, or timezone-naive "
                 "timestamp and cannot be placed reliably in the timeline.",
+                resource_id=resource_id or None,
+                event_type=event_type or None,
             )
             continue
 

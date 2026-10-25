@@ -5,6 +5,9 @@ from src.deletion_audit.reporting.final_summary import (
     build_final_summary,
     write_final_summary,
 )
+from src.deletion_audit.audit.report_validator import (
+    validate_final_summary,
+)
 
 
 def test_combines_audit_and_investigation():
@@ -198,3 +201,38 @@ def test_final_summary_supports_missing_identity_report():
 
     assert result["identity_resolution"]["total_requests"] == 0
     assert result["identity_resolution"]["results"] == []
+
+
+def test_global_integrity_findings_can_reference_unevaluated_resources():
+    audit = {
+        "summary": {
+            "resources_evaluated": 1,
+            "review_required": 1,
+            "policy_review": 0,
+            "verification_required": 0,
+            "verified_deleted": 0,
+        },
+        "results": [
+            {
+                "resource_id": "rec101",
+                "audit_status": "REVIEW_REQUIRED",
+            }
+        ],
+        "integrity_findings": [
+            {
+                "resource_id": "rec103",
+                "finding_type": "POST_DELETION_RESTORE",
+                "event_id": "evt102",
+            }
+        ],
+        "event_id_conflicts": [],
+        "limitations": [],
+    }
+
+    result = build_final_summary(audit, [])
+
+    assert [item["resource_id"] for item in result["resources"]] == [
+        "rec101"
+    ]
+    assert result["integrity_findings"][0]["resource_id"] == "rec103"
+    assert validate_final_summary(result) == []

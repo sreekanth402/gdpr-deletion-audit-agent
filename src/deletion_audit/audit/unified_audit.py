@@ -260,6 +260,17 @@ def build_unified_audit(
                 "why no valid, timestamped DELETE event exists for this resource."
             )
 
+        elif any(
+            normalize(finding.get("finding_type")).upper()
+            == "INVALID_TIMESTAMP"
+            for finding in resource_findings
+        ):
+            audit_status = "VERIFICATION_REQUIRED"
+            recommended_action = (
+                "Resolve the invalid timestamp associated with this resource "
+                "before making a verified-deletion claim."
+            )
+
         elif not absence_verifications:
             audit_status = "VERIFICATION_REQUIRED"
             recommended_action = (

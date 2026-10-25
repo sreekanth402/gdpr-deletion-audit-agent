@@ -112,6 +112,30 @@ def test_absence_verification_after_deletion_is_recorded():
     assert result["absence_verification_event_ids"] == ["evt004"]
 
 
+def test_invalid_timestamp_prevents_verified_deletion_claim():
+    inputs = make_reports()
+    inputs[2]["findings"].append({
+        "finding_type": "INVALID_TIMESTAMP",
+        "severity": "MEDIUM",
+        "event_id": "evt-invalid",
+        "user_id": "u102",
+        "resource_id": "rec102",
+    })
+
+    report = build_unified_audit(*inputs)
+
+    result = next(
+        item for item in report["results"]
+        if item["resource_id"] == "rec102"
+    )
+
+    assert result["audit_status"] == "VERIFICATION_REQUIRED"
+    assert any(
+        finding["finding_type"] == "INVALID_TIMESTAMP"
+        for finding in result["timeline_findings"]
+    )
+
+
 def test_resource_without_delete_event_needs_verification():
     inputs = make_reports()
 
