@@ -37,6 +37,26 @@ def test_build_identity_rows_preserves_resolution_statuses():
     assert rows[1]["matched_user_id"] == ""
 
 
+def test_build_identity_rows_exports_request_metadata():
+    rows = build_identity_csv_rows({"results": [{
+        "case_id": "case_200",
+        "email": "person@example.com",
+        "status": "MATCHED",
+        "request_metadata": {
+            "reported_status": "PARTIALLY_COMPLETE",
+            "requested_at": "2026-07-20T00:00:00Z",
+            "request_text": "Demande de suppression",
+        },
+        "request_data_quality_findings": [],
+        "request_intent": "DELETION_REQUEST",
+        "request_intent_reason": "Recognized request.",
+    }]})
+
+    assert rows[0]["reported_status"] == "PARTIALLY_COMPLETE"
+    assert rows[0]["request_text"] == "Demande de suppression"
+    assert rows[0]["request_intent"] == "DELETION_REQUEST"
+
+
 def test_export_identity_csv_writes_readable_rows(tmp_path):
     source = tmp_path / "identity.json"
     output = tmp_path / "identity.csv"

@@ -1,5 +1,6 @@
 
 from src.deletion_audit.identity.identity_resolver import (
+    classify_request_intent,
     normalize_email,
     resolve_identities,
 )
@@ -87,3 +88,33 @@ def test_duplicate_identity_records_are_not_silently_ambiguous():
     # Duplicate records for the same user should not create two distinct candidates.
     assert result[0]["status"] == "MATCHED"
     assert result[0]["matched_user_id"] == "u101"
+
+
+def test_preserves_request_metadata_and_flags_invalid_chronology():
+    result = resolve_identities(
+        [{
+            "case_id": "case_106",
+            "email": " JOHN@example.com ",
+            "requested_at": "2026-07-20T00:00:00Z",
+            "reported_status": "COMPLETE",
+            "reported_at": "2026-07-19T00:00:00Z",
+            "audit_at": "2026-07-21T00:00:00Z",
+            "request_text": "Solicito a exclusão.",
+        }],
+        [{"user_id": "u101", "email": "john@example.com"}],
+    )[0]
+
+    assert result["status"] == "MATCHED"
+    assert result["request_metadata"]["reported_status"] == "COMPLETE"
+    assert result["request_metadata"]["request_text"] == "Solicito a exclusão."
+    assert result["request_data_quality_findings"][0]["code"] == "REPORTED_BEFORE_REQUEST"
+
+
+def test_classifies_obvious_non_deletion_and_multilingual_requests():
+    assert classify_request_intent(
+        "I still need the account and am not asking for deletion."
+    )[0] == "NOT_DELETION"
+    assert classify_request_intent(
+        "Solicito a exclusão permanente da conta."
+    )[0] == "DELETION_REQUEST"
+    assert classify_request_intent("Unclear request")[0] == "UNKNOWN"

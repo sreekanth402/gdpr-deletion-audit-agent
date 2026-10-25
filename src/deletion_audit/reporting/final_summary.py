@@ -4,6 +4,25 @@ from pathlib import Path
 from typing import Any
 
 
+def _request_status_summary(results: list[dict[str, Any]]) -> dict[str, int]:
+    """Count source-reported statuses without treating them as audit results."""
+    counts: dict[str, int] = {}
+    for item in results:
+        metadata = item.get("request_metadata", {})
+        status = str(metadata.get("reported_status", "") or "").strip().upper()
+        if status:
+            counts[status] = counts.get(status, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def _request_intent_summary(results: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for item in results:
+        intent = str(item.get("request_intent", "UNKNOWN") or "UNKNOWN")
+        counts[intent] = counts.get(intent, 0) + 1
+    return dict(sorted(counts.items()))
+
+
 def build_final_summary(
     unified_audit: dict[str, Any],
     investigations: list[dict[str, Any]],
@@ -100,6 +119,16 @@ def build_final_summary(
             ),
             "summary": identity_summary,
             "results": identity_results,
+            "request_status_summary": _request_status_summary(identity_results),
+            "request_intent_summary": _request_intent_summary(identity_results),
+            "request_data_quality_findings": [
+                {
+                    "case_id": item.get("case_id"),
+                    **finding,
+                }
+                for item in identity_results
+                for finding in item.get("request_data_quality_findings", [])
+            ],
         },
         "resource_count": len(summary_resources),
         "investigation_reports_available": sum(

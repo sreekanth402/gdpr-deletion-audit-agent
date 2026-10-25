@@ -6,6 +6,8 @@ A Python-based audit-support tool that analyzes personal-data deletion requests 
 
 - Validates and ingests CSV and JSON inputs.
 - Resolves deletion-request identities and flags unmatched or ambiguous identities.
+- Preserves request metadata, summarizes source-reported statuses, and flags
+  non-deletion or unclear request text for manual review.
 - Reconstructs event timelines and identifies potentially risky post-deletion activity.
 - Evaluates deletion evidence and configured data-retention rules.
 - Produces unified audit results and JSON/CSV reports.
@@ -75,6 +77,13 @@ python -m src.deletion_audit.main
 The application reads the configured sample inputs and writes audit reports under `reports/`.
 The final JSON summary is `reports/final_gdpr_deletion_audit_summary.json`.
 
+To review another request dataset, place it at `data/input/deletion_requests.csv`
+with at least `case_id` and `email` columns, and provide a matching
+`data/input/user_identities.csv` containing `user_id` and `email`. The pipeline
+preserves any extra request columns. Keep a backup of the sample inputs before
+replacing them; identity matching and request-text intent review are separate
+from resource-level deletion verification.
+
 ## Interpreting the Final Report
 
 `resources` contains only the resources evaluated from `resource_mapping.csv`.
@@ -94,6 +103,12 @@ The report may include email addresses and internal identifiers in the
 identity-resolution results and CSV export. Treat generated reports as
 sensitive data: use synthetic records for demonstrations, restrict access to
 the `reports/` directory, and do not commit real reports.
+
+Deletion request `request_text` is classified conservatively for common
+English, Spanish, Portuguese, French, Japanese, and Korean deletion phrases.
+Explicit non-deletion requests are flagged for review. This phrase-based
+classification is not a substitute for multilingual human review, and request
+`reported_status` remains source-provided context rather than proof of deletion.
 
 ## Run Tests
 

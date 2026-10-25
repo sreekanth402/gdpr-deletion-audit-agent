@@ -203,6 +203,25 @@ def test_final_summary_supports_missing_identity_report():
     assert result["identity_resolution"]["results"] == []
 
 
+def test_reported_request_status_is_summarized_separately():
+    result = build_final_summary(
+        {"summary": {}, "results": []},
+        [],
+        identity_resolution={"results": [
+            {"case_id": "case_1", "request_metadata": {"reported_status": "COMPLETE"}},
+            {"case_id": "case_2", "request_metadata": {"reported_status": "COMPLETE"}},
+            {"case_id": "case_3", "request_metadata": {"reported_status": "NOT_STARTED"}},
+            {"case_id": "case_4", "request_data_quality_findings": [{"code": "INVALID_REQUEST_TIMESTAMP"}]},
+        ]},
+    )
+
+    identity = result["identity_resolution"]
+    assert identity["request_status_summary"] == {"COMPLETE": 2, "NOT_STARTED": 1}
+    assert identity["request_data_quality_findings"] == [
+        {"case_id": "case_4", "code": "INVALID_REQUEST_TIMESTAMP"}
+    ]
+
+
 def test_global_integrity_findings_can_reference_unevaluated_resources():
     audit = {
         "summary": {

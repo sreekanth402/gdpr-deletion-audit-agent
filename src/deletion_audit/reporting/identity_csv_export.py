@@ -12,6 +12,14 @@ CSV_COLUMNS = [
     "matched_user_id",
     "candidate_user_ids",
     "reason",
+    "reported_status",
+    "requested_at",
+    "reported_at",
+    "audit_at",
+    "request_text",
+    "request_intent",
+    "request_intent_reason",
+    "request_data_quality_findings",
 ]
 
 
@@ -58,6 +66,17 @@ def build_identity_csv_rows(
                 candidates, ensure_ascii=False
             ),
             "reason": str(result.get("reason") or ""),
+            "reported_status": str(result.get("request_metadata", {}).get("reported_status") or ""),
+            "requested_at": str(result.get("request_metadata", {}).get("requested_at") or ""),
+            "reported_at": str(result.get("request_metadata", {}).get("reported_at") or ""),
+            "audit_at": str(result.get("request_metadata", {}).get("audit_at") or ""),
+            "request_text": str(result.get("request_metadata", {}).get("request_text") or ""),
+            "request_intent": str(result.get("request_intent") or "UNKNOWN"),
+            "request_intent_reason": str(result.get("request_intent_reason") or ""),
+            "request_data_quality_findings": json.dumps(
+                result.get("request_data_quality_findings", []),
+                ensure_ascii=False,
+            ),
         })
 
     return rows
