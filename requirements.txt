@@ -14,4 +14,4 @@ six==1.17.0
 tomli==2.5.0
 typing_extensions==4.16.0
 tzdata==2026.5
-streamlit==X.Y.Z
+streamlit==1.65.0
